@@ -1,0 +1,69 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!78 &1
+TagManager:
+  serializedVersion: 2
+  tags:
+  - Enemy
+  - Obstacle
+  - Test
+  - Item
+  - Inventory Manager
+  - UI Manager
+  - Door
+  - Canvas
+  - Game
+  - SavedData
+  - Crafting
+  layers:
+  - Default
+  - TransparentFX
+  - Ignore Raycast
+  - 
+  - Water
+  - UI
+  - 
+  - 
+  - Ground
+  - Object
+  - Pointer
+  - NoCol
+  - Item
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  m_SortingLayers:
+  - name: Default
+    uniqueID: 0
+    locked: 0
+  - name: Ground
+    uniqueID: 3047966107
+    locked: 0
+  - name: Building
+    uniqueID: 2714351885
+    locked: 0
+  - name: Interior
+    uniqueID: 2180399775
+    locked: 0
+  - name: Entity
+    uniqueID: 1120239255
+    locked: 0
+  - name: Player
+    uniqueID: 1596885061
+    locked: 0
