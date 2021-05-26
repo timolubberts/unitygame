@@ -20,7 +20,7 @@ public class Creature : MonoBehaviour
             timer = 0f;
             Debug.Log("hit: " + defender.health);
         }
-        timer += (Time.deltaTime*10);
+        timer += (Time.deltaTime*10); 
     }
 
     public Creature[] GetAllCreatures()
