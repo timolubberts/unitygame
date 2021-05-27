@@ -25,7 +25,7 @@ public class ItemDatabase : MonoBehaviour
 
     }
 
-    public Item GetItem(string itemName)
+    /*public Item GetItem(string itemName)
     {
         foreach (Item i in items)
         {
@@ -36,14 +36,14 @@ public class ItemDatabase : MonoBehaviour
             }
         }
         return null;
-    }
+    }*/
 
     public CraftingRecipe GetRecipe(string itemName)
     {
         foreach (CraftingRecipe cr in recipes)
         {
 
-            if (cr.reward.slotItem == GetItem(itemName))
+            if (cr.reward.slotItem == items[itemName])
             {
                 return cr;
             }
@@ -60,7 +60,7 @@ public class ItemDatabase : MonoBehaviour
 
         items.Add("Wooden Fishing Rod", new Tool("Wooden Fishing Rod", 1, 1, "fishing"));
 
-        recipes.Add(new CraftingRecipe(new List<Slot>(){new Slot(GetItem("Apple"), 1), new Slot(GetItem("Orange"), 1)}, new Slot(GetItem("Fruits"), 1), 1));
+        recipes.Add(new CraftingRecipe(new List<Slot>(){new Slot(items["Apple"], 1), new Slot(items["Orange"], 1)}, new Slot(items["Fruits"], 1), 1));
         
 
 

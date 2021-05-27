@@ -74,7 +74,7 @@ public class Game : MonoBehaviour
                 {
                     return;
                 }
-                Slot temp = new Slot(ItemDatabase.Instance.GetItem(oi.prefabItemName), 1);
+                Slot temp = new Slot(ItemDatabase.Instance.items[oi.prefabItemName], 1);
                 InventoryManager.Instance.AddToInventory(temp);
                 Destroy(item);
                 return;
@@ -99,7 +99,6 @@ public class Game : MonoBehaviour
     public void ChangeScene(string sceneName, GameObject obj)
     {
         SavedData.Instance.spawn = obj.GetComponent<SceneTransition>().destination;
-        InventoryManager.Instance.Save();
         SceneManager.LoadScene(sceneName, LoadSceneMode.Single);
     }
 

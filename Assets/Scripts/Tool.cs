@@ -18,7 +18,7 @@ public class Tool : Item
         switch(usage){
             case "fishing":
                 //InventoryManager.Instance.AddToInventory(new Slot(ItemDatabase.Instance.GetItem("Salmon"), 1));
-                Game.Instance.PlaceItem(ItemDatabase.Instance.GetItem("Salmon"));
+                Game.Instance.PlaceItem(ItemDatabase.Instance.items["Salmon"]);
                 break;
         }
     }

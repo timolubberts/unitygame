@@ -23,7 +23,6 @@ public class InventoryManager : MonoBehaviour
             Destroy(gameObject);
         }
 
-        Load();
     }
 
     public void AddToInventory(Slot s)
@@ -185,19 +184,6 @@ public class InventoryManager : MonoBehaviour
         }
         inventory.Add(s);
 
-    }
-
-    public void Save()
-    {
-        SavedData.Instance.inventory = inventory;
-        SavedData.Instance.selected = selected;
-    }
-
-    public void Load()
-    {
-        inventory = SavedData.Instance.inventory;
-        selected = SavedData.Instance.selected;
-        //game.uim.UpdateInventory();
     }
 
 

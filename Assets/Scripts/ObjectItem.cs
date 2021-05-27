@@ -10,6 +10,6 @@ public class ObjectItem : MonoBehaviour
 
     private void Start()
     {
-        item = ItemDatabase.Instance.GetItem(prefabItemName);
+        item = ItemDatabase.Instance.items[prefabItemName];
     }
 }
