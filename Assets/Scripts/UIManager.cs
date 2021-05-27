@@ -5,8 +5,6 @@ using UnityEngine;
 
 public class UIManager : MonoBehaviour
 {
-
-    private Game game;
     public Canvas canvas;
     public Transform itembar;
     public List<Transform> slotImages = new List<Transform>();
@@ -14,7 +12,7 @@ public class UIManager : MonoBehaviour
 
     private void Awake()
     {
-        game = GameObject.FindGameObjectWithTag("Game").GetComponent<Game>();
+
         canvas = GameObject.FindGameObjectWithTag("Canvas").GetComponent<Canvas>();
         itembar = canvas.transform.Find("Itembar");
         foreach(Transform image in itembar)
@@ -35,8 +33,8 @@ public class UIManager : MonoBehaviour
 
     public void UpdateInventory()
     {
-        List<Slot> invContent = game.im.inventory;
-        int selected = game.im.selected;
+        List<Slot> invContent = InventoryManager.Instance.inventory;
+        int selected = InventoryManager.Instance.selected;
         
         for (int i = 0; i < 8; i++)
         {
@@ -49,7 +47,7 @@ public class UIManager : MonoBehaviour
             {
                 slotImages[i].GetComponent<Image>().enabled = true;
                 //slotText[i].GetComponent<Text>().enabled = true;
-                slotImages[i].GetComponent<Image>().sprite = invContent[i].slotItem.itemSprite;
+                slotImages[i].GetComponent<Image>().sprite = Resources.Load<Sprite>("" + ItemDatabase.Instance.GetItem(invContent[i].slotItem.itemName).title);//invContent[i].slotItem.itemSprite;
                 slotText[i].GetComponent<Text>().text = newText + invContent[i].quantity;
 
             }

@@ -18,10 +18,7 @@ public class SavedData : MonoBehaviour
     public GameObject playerPrefab;
 
     //Items
-    public Item Apple = new Item("Apple", 1, 3);
-    public Item Orange = new Item("Orange", 1, 3);
-    public Item Fruits = new Item("Fruits", 1, 3);
-
+    
     void Awake()
     {
         if (Instance == null)
@@ -33,6 +30,8 @@ public class SavedData : MonoBehaviour
         {
             Destroy(gameObject);
         }
+
+
     }
 
 

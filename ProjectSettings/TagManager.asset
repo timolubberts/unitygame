@@ -15,6 +15,7 @@ TagManager:
   - Game
   - SavedData
   - Crafting
+  - ItemDatabase
   layers:
   - Default
   - TransparentFX

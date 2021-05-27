@@ -2,21 +2,26 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Item : MonoBehaviour
+public class Item
 {
-
-    public string itemName = "";
-    public int stackSize;
-    public int stackLimit;
-
-    public Sprite itemSprite;
+    public string itemName { get; set; }
+    public string title { get; set; }
+    public int stackSize { get; set; }
+    public int stackLimit { get; set; }
+    public Sprite itemSprite { get; set; }
 
     public Item(string itemName, int stackSize, int stackLimit)
     {
         this.itemName = itemName;
+        title = itemName.Replace(' ', '_').ToLower();
         this.stackSize = stackSize;
         this.stackLimit = stackLimit;
+        //Debug.Log(title);
+       
     }
 
-
+    public virtual void Use()
+    {
+        
+    }
 }

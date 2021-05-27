@@ -4,7 +4,15 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
-    public Transform pointer;
+    public static PlayerController Instance;
+
+    public int hunger = 3;
+    public int maxHunger = 10;
+
+    public void Feed(int amount)
+    {
+        Instance.hunger += amount;
+    }
 
     public float speed;
     public float pickUpRadius;
@@ -19,9 +27,17 @@ public class PlayerController : MonoBehaviour
 
     void Awake()
     {
+        if (Instance == null)
+        {
+            DontDestroyOnLoad(gameObject);
+            Instance = this;
+        }
+        else if (Instance != this)
+        {
+            Destroy(gameObject);
+        }
         playerRb2d = GetComponent<Rigidbody2D>();
         sr = GetComponent<SpriteRenderer>();
-        game = GameObject.FindGameObjectWithTag("Game").GetComponent<Game>();
     }
 
     void FixedUpdate()
@@ -43,7 +59,7 @@ public class PlayerController : MonoBehaviour
         
         if (Input.GetKeyDown(KeyCode.Space))
         {
-            game.PlaceItem(transform.position);
+            Game.Instance.PlaceItem();
         }
 
         if (Input.GetMouseButtonDown(1))
@@ -53,7 +69,15 @@ public class PlayerController : MonoBehaviour
 
         if(Input.GetAxis("Mouse ScrollWheel") != 0f)
         {
-            game.im.ChangeSelected(Input.GetAxis("Mouse ScrollWheel"));
+            InventoryManager.Instance.ChangeSelected(Input.GetAxis("Mouse ScrollWheel"));
+        }
+        if (Input.GetKeyDown(KeyCode.Return))
+        {
+            if (InventoryManager.Instance.inventory[InventoryManager.Instance.selected] != null)
+            {
+                InventoryManager.Instance.inventory[InventoryManager.Instance.selected].slotItem.Use();
+            }
+            
         }
     }
 
@@ -87,7 +111,6 @@ public class PlayerController : MonoBehaviour
             sr.sprite = sprites[1];
             sr.flipY = true;
         }
-        pointer.position = playerRb2d.position;
     }
 
     private void Interact()
@@ -97,19 +120,20 @@ public class PlayerController : MonoBehaviour
         {   
             GameObject obj = hit.transform.gameObject;
             float dist = Vector2.Distance(transform.position, obj.transform.position);
-
+            //Debug.Log(obj.name);
             switch (obj.tag)
             {
+                
                 case "Item":
                     if (dist <= pickUpRadius)
                     {
-                        game.PickUp(obj);
+                        Game.Instance.PickUp(obj);
                     }
                     break;
                 case "Door":
                     if(dist <= pickUpRadius)
                     {
-                        game.ChangeScene(obj.name, obj);
+                        Game.Instance.ChangeScene(obj.name, obj);
                     }
                     break;
             }

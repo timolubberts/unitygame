@@ -4,20 +4,34 @@ using UnityEngine;
 
 public class InventoryManager : MonoBehaviour
 {
+    public static InventoryManager Instance;
+
     public List<Slot> inventory = new List<Slot>();
 
-    public int selected;
-    private Game game;
+    public int selected = 0;
+    public int maxInventorySize = 8;
 
     private void Awake()
     {
+        if (Instance == null)
+        {
+            DontDestroyOnLoad(gameObject);
+            Instance = this;
+        }
+        else if (Instance != this)
+        {
+            Destroy(gameObject);
+        }
 
-        game = GameObject.FindGameObjectWithTag("Game").GetComponent<Game>();
         Load();
     }
 
     public void AddToInventory(Slot s)
     {
+        if (IsFull())
+        {
+            return;
+        }
 
         if (!InventoryContains(s, -1))
         {
@@ -27,31 +41,14 @@ public class InventoryManager : MonoBehaviour
         {
             ChangeQuantity(s);
         }
-        if (inventory.Count == 1)
-        {
-            selected = 0;
-        }
 
-        //game.uim.UpdateInventory();
 
     }
 
-    public void RemoveFromInventory(Slot s)
+    public void RemoveFromInventory(Item i)
     {
-
-        if (selected == inventory.Count - 1 && s.quantity == 1)
-        {
-            //selected--;
-            //inventory.Remove(s);
-            Slot temp = new Slot(s.slotItem, -1);
-            ChangeQuantity(temp);
-        }
-        else
-        {
-            Slot temp = new Slot(s.slotItem, -1);
-            ChangeQuantity(temp);
-        }
-        //game.uim.UpdateInventory();
+        Slot temp = new Slot(i, -1);
+        ChangeQuantity(temp);
     }
 
     public bool IsEmpty()
@@ -140,32 +137,53 @@ public class InventoryManager : MonoBehaviour
         
     }
 
+    public bool IsFull()
+    {
+        if(inventory.Count <= maxInventorySize)
+        {
+            return false;
+        }
+        return true;
+    }
+
     public void ChangeQuantity(Slot s)
     {
-
+        int ctr = 0;
         foreach (Slot inv in inventory)
         {
             if(inv.slotItem == s.slotItem)
             {
-                //if (inv.quantity == inv.slotItem.stackLimit) continue;
                 int newQuant = inv.quantity + s.quantity;
-                if (newQuant == 0)
+                if(s.quantity == -1) // Remove quantity
                 {
-                    inventory.Remove(inv);
+                    if(newQuant == 0) // New quantity removes last item
+                    {
+                        inventory.RemoveAt(ctr);
+                    }
+                    else
+                    {
+                        inv.quantity = newQuant;
+                    }
+                    return; ;
                 }
-                else if (newQuant > inv.slotItem.stackLimit)
+                else // Add quantity
                 {
-                    inventory.Add(new Slot(inv.slotItem, inv.slotItem.stackSize));
-                }
-                else
-                {
-                    inv.quantity = newQuant;
-                }
-                return;
-            }
-        }
+                    if(inv.quantity != s.slotItem.stackLimit) // Current inventory item is not full
+                    {
+                        inv.quantity = newQuant;
+                        return;
+                    }
+                    else
+                    {
+                        continue;
+                    }
 
-        
+                }
+
+            }
+            ctr++;
+        }
+        inventory.Add(s);
 
     }
 

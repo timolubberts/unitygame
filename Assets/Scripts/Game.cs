@@ -7,59 +7,88 @@ using UnityEngine;
 public class Game : MonoBehaviour
 {
     public GameObject player;
+    public static Game Instance;
 
-    //Managers
-    public UIManager uim;
-    public InventoryManager im;
-    public SavedData sd;
-    public Crafting c;
-
-
+    public List<GameObject> itemPrefabs = new List<GameObject>();
 
     void Awake()
     {
-        Instantiate(SavedData.Instance.playerPrefab, SavedData.Instance.spawn, Quaternion.identity);
-        player = GameObject.FindGameObjectWithTag("Player");
+        transform.DetachChildren();
+        if (Instance == null)
+        {
+            DontDestroyOnLoad(transform.root.gameObject);
+            Instance = this;
+        }
+        else if (Instance != this)
+        {
+            Destroy(transform.root.gameObject);
+        }
+        
+        GameObject[] loadedPrefabs = Resources.LoadAll<GameObject>("Prefabs/Items");
+        foreach(GameObject go in loadedPrefabs)
+        {
+            itemPrefabs.Add(go);
+        }
 
-
-        c = GameObject.FindGameObjectWithTag("Crafting").GetComponent<Crafting>();
-        sd = GameObject.FindGameObjectWithTag("SavedData").GetComponent<SavedData>();
-        uim = GameObject.FindGameObjectWithTag("UI Manager").GetComponent<UIManager>();
-        im = GameObject.FindGameObjectWithTag("Inventory Manager").GetComponent<InventoryManager>();
     }
 
-    public void PlaceItem(Vector3 position)
+    private void Start()
     {
-        if (!im.IsEmpty())
+        Instantiate(SavedData.Instance.playerPrefab, SavedData.Instance.spawn, Quaternion.identity);
+        player = GameObject.FindGameObjectWithTag("Player");
+        SceneManager.sceneLoaded += OnSceneLoaded;
+    }
+
+
+    public void PlaceItem()
+    {
+        if (!InventoryManager.Instance.IsEmpty())
         {
             try
             {
-                Instantiate(GetObjectFromPrefabs(im.inventory[im.selected].slotItem), player.transform.position, Quaternion.identity);
-                im.RemoveFromInventory(im.inventory[im.selected]);
+                Instantiate(GetObjectFromPrefabs(InventoryManager.Instance.inventory[InventoryManager.Instance.selected].slotItem), player.transform.position, Quaternion.identity);
+                InventoryManager.Instance.RemoveFromInventory(InventoryManager.Instance.inventory[InventoryManager.Instance.selected].slotItem);
             }
             catch (ArgumentOutOfRangeException)
             {
                 return;
             }
-            
 
         }
     }
 
+    public void PlaceItem(Item item)
+    {
+        Instantiate(GetObjectFromPrefabs(item), player.transform.position, Quaternion.identity);
+
+    }
+
     public void PickUp(GameObject item)
     {
-        Item i = GetObjectFromPrefabs(item.GetComponent<Item>()).GetComponent<Item>();
-        Slot temp = new Slot(i, i.stackSize);
-        im.AddToInventory(temp);
-        Destroy(item);
+        foreach(GameObject go in itemPrefabs)
+        {
+            ObjectItem oi = item.GetComponent<ObjectItem>();
+            if (oi.prefabItemName == item.GetComponent<ObjectItem>().prefabItemName)
+            {
+                if (InventoryManager.Instance.IsFull())
+                {
+                    return;
+                }
+                Slot temp = new Slot(ItemDatabase.Instance.GetItem(oi.prefabItemName), 1);
+                InventoryManager.Instance.AddToInventory(temp);
+                Destroy(item);
+                return;
+            }
+        }
+        
 
     }
 
     public GameObject GetObjectFromPrefabs(Item target)
     {
-        foreach(GameObject go in SavedData.Instance.itemPrefabs)
+        foreach(GameObject go in itemPrefabs)
         {
-            if(go.GetComponent<Item>().itemName == target.itemName)
+            if(go.GetComponent<ObjectItem>().prefabItemName == target.itemName) // Check if 
             {
                 return go;
             }
@@ -70,8 +99,13 @@ public class Game : MonoBehaviour
     public void ChangeScene(string sceneName, GameObject obj)
     {
         SavedData.Instance.spawn = obj.GetComponent<SceneTransition>().destination;
-
-        im.Save();
+        InventoryManager.Instance.Save();
         SceneManager.LoadScene(sceneName, LoadSceneMode.Single);
     }
+
+    void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        PlayerController.Instance.transform.position = SavedData.Instance.spawn;
+    }
+
 }

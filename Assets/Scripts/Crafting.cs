@@ -4,28 +4,13 @@ using UnityEngine;
 
 public class Crafting : MonoBehaviour
 {
-    public List<Item> allItems = new List<Item>();
-    public Game game;
-
-    public List<Slot> fruitSlots;
-    public CraftingRecipe fruits;
-
-    void Start()
+    private void Awake()
     {
-        game = GameObject.FindGameObjectWithTag("Game").GetComponent<Game>();
-        foreach (GameObject go in SavedData.Instance.itemPrefabs)
-        {
-            allItems.Add(go.GetComponent<Item>());
-        }
-        fruitSlots = new List<Slot>() { new Slot(allItems[0], 1), new Slot(allItems[1], 1) };
-        fruits = new CraftingRecipe(fruitSlots, new Slot(allItems[2], 1), 1);
-
-        
+        DontDestroyOnLoad(gameObject);
     }
-
     void Update()
     {
-        Craft(fruits);
+        Craft(ItemDatabase.Instance.GetRecipe("Fruits"));
     }
 
     public bool IsCraftable(CraftingRecipe cr)
@@ -33,7 +18,7 @@ public class Crafting : MonoBehaviour
         int counter = 0;
         foreach(Slot s in cr.required)
         {
-            foreach(Slot x in game.im.inventory){
+            foreach(Slot x in InventoryManager.Instance.inventory){
                 if(x.slotItem == s.slotItem)
                 {
                     if(x.quantity >= s.quantity)
@@ -59,9 +44,9 @@ public class Crafting : MonoBehaviour
         {
             foreach(Slot s in cr.required)
             {
-                game.im.RemoveFromInventory(s);
+                InventoryManager.Instance.RemoveFromInventory(s.slotItem);
             }
-            game.im.AddToInventory(cr.reward);
+            InventoryManager.Instance.AddToInventory(cr.reward);
         }
     }
 }
