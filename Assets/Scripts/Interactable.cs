@@ -2,7 +2,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class SceneTransition : MonoBehaviour
+public class Interactable : MonoBehaviour
 {
-    public Vector2 destination;
+    
+
 }

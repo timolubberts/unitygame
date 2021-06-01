@@ -6,65 +6,86 @@ using TMPro;
 
 public class UIManager : MonoBehaviour
 {
+    public static UIManager Instance;
+    public Dictionary<int, GameObject> UIElements = new Dictionary<int, GameObject>();
+    public Dictionary<int, GameObject> ActiveUIElements = new Dictionary<int, GameObject>();
+
     public Canvas canvas;
-    public Transform itembar;
-    public Transform highlighted;
-    public List<Transform> slotImages = new List<Transform>();
-    public List<Transform> slotText = new List<Transform>();
+
+
+    public bool mainInventoryIsOpen = false;
+
+
 
     private void Awake()
     {
 
+        CreateReferences();
+
+
+    }
+
+    private void Start()
+    {
+        AddUIElement(UIElements[0]);
+
+    }
+    private void Update()
+    {
+        foreach (var ui in ActiveUIElements)
+        {
+            ui.Value.GetComponent<UIElement>().UpdateUI();
+        }
+    }
+    public void AddUIElement(GameObject go)
+    {
+        GameObject element = Instantiate(go.gameObject, transform);
+        ActiveUIElements.Add(go.GetComponent<UIElement>().id, element);
+
+    }
+
+    public void DestroyUIElement(GameObject go)
+    {
+        ActiveUIElements.Remove(go.GetComponent<UIElement>().id);
+        Destroy(go);
+    }
+    public void CreateReferences()
+    {
+        ActiveUIElements.Clear();
+        UIElements.Clear();
         canvas = GameObject.FindGameObjectWithTag("Canvas").GetComponent<Canvas>();
-        itembar = canvas.transform.Find("itembar");
-        highlighted = itembar.transform.Find("highlighted");
+        //highlighted = canvas.transform.Find("highlighted").gameObject;
 
-        foreach(Transform image in itembar)
+        Transform[] UIprefabs = Resources.LoadAll<Transform>("Prefabs/Game Functions/UI Elements");
+        foreach (Transform go in UIprefabs)
         {
-            slotImages.Add(image);
+            if(go.GetComponent<UIElement>() == null) { continue; }
+            UIElements.Add(go.GetComponent<UIElement>().id, go.gameObject);
         }
-        foreach(Transform text in itembar)
-        {
-            slotText.Add(text.Find(text.name + "_Text"));
-        }
-        
+
     }
 
-    void FixedUpdate()
+    public void SwitchInventory()
     {
-        UpdateInventory();
-    }
-
-    public void UpdateInventory()
-    {
-        List<Slot> invContent = InventoryManager.Instance.inventory;
-        int selected = InventoryManager.Instance.selected;
-        
-        for (int i = 0; i < 8; i++)
+        if (!mainInventoryIsOpen) // If main inventory is NOT open when SwitchInventory() is called, it will open the main inventory..
         {
-            string newText = "";
-            if(i == selected)
-            {
-                highlighted.position = slotImages[i].position;
-            }
-            if(i < invContent.Count )
-            {
-                slotImages[i].GetComponent<Image>().enabled = true;
-                //slotText[i].GetComponent<Text>().enabled = true;
-                slotImages[i].GetComponent<Image>().sprite = Resources.Load<Sprite>("" + ItemDatabase.Instance.items[invContent[i].slotItem.itemName].title);//invContent[i].slotItem.itemSprite;
-                slotText[i].GetComponent<TextMeshProUGUI>().text = newText + invContent[i].quantity;
 
-            }
-            else
-            {
-                slotImages[i].GetComponent<Image>().enabled = false;
-                slotText[i].GetComponent<TextMeshProUGUI>().text = newText;
-                //slotText[i].GetComponent<Text>().enabled = false;
-            }
-
+            mainInventoryIsOpen = true;
+            DestroyUIElement(ActiveUIElements[0]);
+            AddUIElement(UIElements[1]);
+            AddUIElement(UIElements[2]);
+            PlayerController.Instance.movementDisabled = true;
 
         }
+        else if (mainInventoryIsOpen) // Else the hotbar will be activated
+        {
+            DestroyUIElement(ActiveUIElements[1]);
+            DestroyUIElement(ActiveUIElements[2]);
+            AddUIElement(UIElements[0]);
+            mainInventoryIsOpen = false;
+            PlayerController.Instance.movementDisabled = false;
 
+        }
     }
-  
 }
+

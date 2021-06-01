@@ -22,6 +22,9 @@ public class Item
 
     public virtual void Use()
     {
-        
+        if(itemName == "NULL")
+        {
+            return;
+        }
     }
 }

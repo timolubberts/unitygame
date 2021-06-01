@@ -15,6 +15,6 @@ public class Consumable : Item
     {
         Debug.Log("Using " + itemName + "..");
         PlayerController.Instance.Feed(effect);
-        InventoryManager.Instance.RemoveFromInventory(this);
+        InventoryManager.Instance.RemoveFromInventory(this, 1, true);
     }
 }

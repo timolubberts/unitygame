@@ -6,9 +6,6 @@ public class SavedData : MonoBehaviour
 {
     public static SavedData Instance;
 
-    //InventoryManager
-    //public List<Slot> inventory = new List<Slot>();
-    //public int selected;
 
     //Spawns
     public Vector2 spawn = new Vector2(-1, -3);
@@ -30,6 +27,7 @@ public class SavedData : MonoBehaviour
         {
             Destroy(gameObject);
         }
+
 
 
     }

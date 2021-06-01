@@ -9,13 +9,14 @@ TagManager:
   - Test
   - Item
   - Inventory Manager
-  - UI Manager
   - Door
   - Canvas
   - Game
   - SavedData
   - Crafting
   - ItemDatabase
+  - UIManager
+  - UI
   layers:
   - Default
   - TransparentFX

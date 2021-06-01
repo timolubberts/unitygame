@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -6,10 +7,11 @@ public class InventoryManager : MonoBehaviour
 {
     public static InventoryManager Instance;
 
-    public List<Slot> inventory = new List<Slot>();
+    //public List<Slot> inventory = new List<Slot>();
+    public Dictionary<int, Slot> inventory = new Dictionary<int, Slot>();
 
     public int selected = 0;
-    public int maxInventorySize = 8;
+    public int maxInventorySize = 24;
 
     private void Awake()
     {
@@ -25,29 +27,21 @@ public class InventoryManager : MonoBehaviour
 
     }
 
-    public void AddToInventory(Slot s)
+    public void AddToInventory(Item i, int quantity,  bool selected)
     {
         if (IsFull())
         {
             return;
         }
-
-        if (!InventoryContains(s, -1))
-        {
-            inventory.Add(s);
-        }
-        else
-        {
-            ChangeQuantity(s);
-        }
+        Slot temp = new Slot(i, quantity);
+        ChangeQuantity(temp, selected);
 
 
     }
-
-    public void RemoveFromInventory(Item i)
+    public void RemoveFromInventory(Item i, int quantity, bool selected)
     {
-        Slot temp = new Slot(i, -1);
-        ChangeQuantity(temp);
+        Slot temp = new Slot(i, -quantity);
+        ChangeQuantity(temp, selected);
     }
 
     public bool IsEmpty()
@@ -60,6 +54,39 @@ public class InventoryManager : MonoBehaviour
         {
             return false;
         }
+    }
+
+    public void ReplaceSlots(int start, int end)
+    {
+        Slot s1;
+        Slot s2;
+
+        if (inventory.ContainsKey(start))
+        {
+            s1 = inventory[start];
+        }
+        else
+        {
+            return;
+        }
+
+        if (!inventory.ContainsKey(end))
+        {
+            inventory.Add(end, s1);
+            inventory.Remove(start);
+
+        }
+        else
+        {
+            s2 = inventory[end];
+            inventory[start] = s2;
+            inventory[end] = s1;
+        }
+
+
+
+
+
     }
 
     public void ChangeSelected(float newPos)
@@ -113,7 +140,7 @@ public class InventoryManager : MonoBehaviour
     {
         if(quantity != -1)
         {
-            foreach (Slot s in inventory)
+            foreach (Slot s in inventory.Values)
             {
                 if (s.slotItem.itemName == i.slotItem.itemName && s.quantity == quantity)
                 {
@@ -124,12 +151,15 @@ public class InventoryManager : MonoBehaviour
         }
         else
         {
-            foreach (Slot s in inventory)
+            foreach (Slot s in inventory.Values)
             {
-                if (s.slotItem.itemName == i.slotItem.itemName)
-                {
-                    return true;
+                if(s != null){
+                    if (s.slotItem.itemName == i.slotItem.itemName)
+                    {
+                        return true;
+                    }
                 }
+
             }
             return false;
         }
@@ -145,45 +175,77 @@ public class InventoryManager : MonoBehaviour
         return true;
     }
 
-    public void ChangeQuantity(Slot s)
+    public void ChangeQuantity(Slot s, bool selectedInvSlot)
     {
+        int firstEmptySpot = -1;
         int ctr = 0;
-        foreach (Slot inv in inventory)
+        if (selectedInvSlot)
         {
-            if(inv.slotItem == s.slotItem)
+            int newQuant = inventory[selected].quantity + s.quantity;
+            if (newQuant == 0)
             {
-                int newQuant = inv.quantity + s.quantity;
-                if(s.quantity == -1) // Remove quantity
+                inventory.Remove(selected);
+            }
+            else
+            {
+                inventory[selected].quantity = newQuant;
+            }
+            return;
+        }
+        else
+        {
+            for (int i = 0; i < maxInventorySize; i++)
+            {
+                if (!inventory.ContainsKey(i))
                 {
-                    if(newQuant == 0) // New quantity removes last item
-                    {
-                        inventory.RemoveAt(ctr);
-                    }
-                    else
-                    {
-                        inv.quantity = newQuant;
-                    }
-                    return; ;
+                    if (firstEmptySpot == -1) { firstEmptySpot = i; }
+                    continue;
                 }
-                else // Add quantity
+                //Slot invSlot = inventory[i];
+                if (inventory[i].slotItem == s.slotItem)
                 {
-                    if(inv.quantity != s.slotItem.stackLimit) // Current inventory item is not full
+                    int newQuant = inventory[i].quantity + s.quantity;
+                    if (s.quantity < 0) // Remove quantity
                     {
-                        inv.quantity = newQuant;
+                        if (newQuant == 0) // New quantity removes last item
+                        {
+
+                            if (inventory[i].quantity == s.slotItem.stackLimit) // If current inventory item is full
+                            {
+                                continue;
+                            }
+                            else
+                            {
+                                inventory.Remove(i);
+                                return;
+
+                            }
+                        }
+                        else
+                        {
+                            inventory[i].quantity = newQuant;
+                        }
                         return;
                     }
-                    else
+                    else // Add quantity
                     {
-                        continue;
+                        if (inventory[i].quantity != s.slotItem.stackLimit)
+                        {// Current inventory item is not full
+
+                            inventory[i].quantity = newQuant;
+                            return;
+                        }
                     }
 
                 }
-
+                ctr++;
             }
-            ctr++;
-        }
-        inventory.Add(s);
 
+
+            inventory.Add(firstEmptySpot, s);
+            //inventory.Add(s);
+
+        }
     }
 
 

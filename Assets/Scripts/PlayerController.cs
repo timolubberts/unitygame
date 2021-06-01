@@ -13,7 +13,7 @@ public class PlayerController : MonoBehaviour
     {
         Instance.hunger += amount;
     }
-
+    public bool movementDisabled = false;
     public float speed;
     public float pickUpRadius;
     public float sprintMultiplier;
@@ -47,6 +47,15 @@ public class PlayerController : MonoBehaviour
 
     void Update()
     {
+        if (Input.GetKeyDown(KeyCode.Tab)) // Open inventory
+        {
+            Game.Instance.uim.SwitchInventory();
+        }
+        if (movementDisabled)   //  ^
+        {                       //  | 
+            return;             //  |
+        }                       //  v
+
         if (Input.GetKey(KeyCode.LeftShift))
         {
             isSprinting = true;
@@ -55,8 +64,11 @@ public class PlayerController : MonoBehaviour
         {
             isSprinting = false;
         }
+        if (Input.GetKeyDown(KeyCode.Q))
+        {
+            Game.Instance.crafting.Craft(ItemDatabase.Instance.GetRecipe("Fruits"));
+        }
 
-        
         if (Input.GetKeyDown(KeyCode.Space))
         {
             Game.Instance.PlaceItem();
@@ -84,6 +96,10 @@ public class PlayerController : MonoBehaviour
 
     private void Move(float movementX, float movementY)
     {
+        if (movementDisabled)
+        {
+            return;
+        }
         float multiplier = 1f;
         if (isSprinting)
         {
@@ -115,6 +131,10 @@ public class PlayerController : MonoBehaviour
 
     private void Interact()
     {
+        if (movementDisabled)
+        {
+            return;
+        }
         RaycastHit2D hit = Physics2D.Raycast(Camera.main.ScreenToWorldPoint(Input.mousePosition), Vector2.zero);
         if (hit)
         {   
@@ -128,6 +148,7 @@ public class PlayerController : MonoBehaviour
                     if (dist <= pickUpRadius)
                     {
                         Game.Instance.PickUp(obj);
+                        Item i = obj.GetComponent<ObjectItem>().item;
                     }
                     break;
                 case "Door":

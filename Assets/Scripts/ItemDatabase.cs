@@ -10,6 +10,7 @@ public class ItemDatabase : MonoBehaviour
     public Dictionary<string, Item> items = new Dictionary<string, Item>();
     public List<CraftingRecipe> recipes = new List<CraftingRecipe>();
 
+    public Crafting crafting;
     private void Awake()
     {
         if (Instance == null)
@@ -22,9 +23,8 @@ public class ItemDatabase : MonoBehaviour
             Destroy(gameObject);
         }
         BuildDatabase();
-
+        crafting = GameObject.FindGameObjectWithTag("Crafting").GetComponent<Crafting>();
     }
-
     /*public Item GetItem(string itemName)
     {
         foreach (Item i in items)
@@ -37,6 +37,7 @@ public class ItemDatabase : MonoBehaviour
         }
         return null;
     }*/
+
 
     public CraftingRecipe GetRecipe(string itemName)
     {
@@ -52,6 +53,8 @@ public class ItemDatabase : MonoBehaviour
     }
     void BuildDatabase()
     {
+        items.Add("NULL", new Item("NULL", 0, 0));
+
         items.Add("Apple", new Consumable("Apple", 1, 3, 2));
         items.Add("Orange", new Consumable("Orange", 1, 3, 2));
         items.Add("Fruits", new Consumable("Fruits", 1, 3, 6));
@@ -60,9 +63,20 @@ public class ItemDatabase : MonoBehaviour
 
         items.Add("Wooden Fishing Rod", new Tool("Wooden Fishing Rod", 1, 1, "fishing"));
 
-        recipes.Add(new CraftingRecipe(new List<Slot>(){new Slot(items["Apple"], 1), new Slot(items["Orange"], 1)}, new Slot(items["Fruits"], 1), 1));
+        recipes.Add(new CraftingRecipe(new List<Slot>(){new Slot(items["Apple"], 1), new Slot(items["Orange"], 1)}, new Slot(items["Fruits"], 1)));
+        recipes.Add(new CraftingRecipe(new List<Slot>() { new Slot(items["Salmon"], 1), new Slot(items["Orange"], 1 )}, new Slot(items["De Klok Bier"], 1)));
         
+    }
 
-
+    public List<CraftingRecipe> GetCraftableRecipes()
+    {
+        List<CraftingRecipe> craftable = new List<CraftingRecipe>();
+        foreach (CraftingRecipe cr in recipes)
+        {
+            if (crafting.IsCraftable(cr)){
+                craftable.Add(cr);
+            }
+        }
+        return craftable;
     }
 }

@@ -4,21 +4,12 @@ using UnityEngine;
 
 public class Crafting : MonoBehaviour
 {
-    private void Awake()
-    {
-        DontDestroyOnLoad(gameObject);
-    }
-    void Update()
-    {
-        Craft(ItemDatabase.Instance.GetRecipe("Fruits"));
-    }
-
     public bool IsCraftable(CraftingRecipe cr)
     {
         int counter = 0;
         foreach(Slot s in cr.required)
         {
-            foreach(Slot x in InventoryManager.Instance.inventory){
+            foreach(Slot x in InventoryManager.Instance.inventory.Values){
                 if(x.slotItem == s.slotItem)
                 {
                     if(x.quantity >= s.quantity)
@@ -40,15 +31,43 @@ public class Crafting : MonoBehaviour
 
     public void Craft(CraftingRecipe cr)
     {
+        //Debug.Log(cr.reward.quantity);
         if (IsCraftable(cr))
         {
             foreach(Slot s in cr.required)
             {
-                InventoryManager.Instance.RemoveFromInventory(s.slotItem);
+                InventoryManager.Instance.RemoveFromInventory(s.slotItem, s.quantity, false);
             }
-            InventoryManager.Instance.AddToInventory(cr.reward);
+            InventoryManager.Instance.AddToInventory(cr.reward.slotItem, cr.reward.quantity, false);
+
         }
     }
+
+    public int IsCraftableAmount(CraftingRecipe cr)
+    {
+        int amount = 0;
+        int counter = 0;
+        Dictionary<int, Slot> tempInventory = InventoryManager.Instance.inventory;
+        foreach (Slot s in cr.required)
+        {
+            foreach (Slot x in tempInventory.Values)
+            {
+
+                if (x.slotItem == s.slotItem)
+                {
+                    counter += (x.quantity - (x.quantity % s.quantity)) / s.quantity;
+
+                }
+            }
+            if (counter <= amount || amount == 0)
+            {
+                amount = counter;
+            }
+        }
+
+        return amount;
+    }
+
 }
 
 

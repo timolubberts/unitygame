@@ -9,11 +9,14 @@ public class Game : MonoBehaviour
     public GameObject player;
     public static Game Instance;
 
+    //Gameplay
+    public Crafting crafting;
+    public UIManager uim;
+
     public List<GameObject> itemPrefabs = new List<GameObject>();
 
     void Awake()
     {
-        transform.DetachChildren();
         if (Instance == null)
         {
             DontDestroyOnLoad(transform.root.gameObject);
@@ -29,6 +32,8 @@ public class Game : MonoBehaviour
         {
             itemPrefabs.Add(go);
         }
+        crafting = GameObject.FindGameObjectWithTag("Crafting").GetComponent<Crafting>();
+        uim = GameObject.FindGameObjectWithTag("UIManager").GetComponent<UIManager>();
 
     }
 
@@ -39,20 +44,12 @@ public class Game : MonoBehaviour
         SceneManager.sceneLoaded += OnSceneLoaded;
     }
 
-
     public void PlaceItem()
     {
-        if (!InventoryManager.Instance.IsEmpty())
+        if (InventoryManager.Instance.inventory.ContainsKey(InventoryManager.Instance.selected))
         {
-            try
-            {
-                Instantiate(GetObjectFromPrefabs(InventoryManager.Instance.inventory[InventoryManager.Instance.selected].slotItem), player.transform.position, Quaternion.identity);
-                InventoryManager.Instance.RemoveFromInventory(InventoryManager.Instance.inventory[InventoryManager.Instance.selected].slotItem);
-            }
-            catch (ArgumentOutOfRangeException)
-            {
-                return;
-            }
+            Instantiate(GetObjectFromPrefabs(InventoryManager.Instance.inventory[InventoryManager.Instance.selected].slotItem), player.transform.position, Quaternion.identity);
+            InventoryManager.Instance.RemoveFromInventory(InventoryManager.Instance.inventory[InventoryManager.Instance.selected].slotItem, 1, true);
 
         }
     }
@@ -75,7 +72,7 @@ public class Game : MonoBehaviour
                     return;
                 }
                 Slot temp = new Slot(ItemDatabase.Instance.items[oi.prefabItemName], 1);
-                InventoryManager.Instance.AddToInventory(temp);
+                InventoryManager.Instance.AddToInventory(temp.slotItem, temp.quantity, false);
                 Destroy(item);
                 return;
             }
@@ -104,6 +101,8 @@ public class Game : MonoBehaviour
 
     void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
+        uim = GameObject.FindGameObjectWithTag("UIManager").GetComponent<UIManager>();
+        uim.CreateReferences();
         PlayerController.Instance.transform.position = SavedData.Instance.spawn;
     }
 

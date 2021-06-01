@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 5000772775290806745}
   m_Layer: 0
   m_Name: Crafting
-  m_TagString: Untagged
+  m_TagString: Crafting
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -43,4 +43,3 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 461eaf15bf8741b42be06042e4b71495, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  allItems: []
